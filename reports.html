@@ -5,25 +5,45 @@
 </head>
 <body>
 
-<nav>
-  <a href="index.html">Search</a> |
-  <a href="diagram.html">Diagram</a> |
-  <a href="inventory.html">Inventory</a> |
-  <a href="reports.html">Reports</a>
-</nav>
-<hr>
-<body>
+<!-- Navbar will load here -->
+<div id="navbar"></div>
 
-<h1>Reports Page</h1>
+<script>
+  fetch("nav.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbar").innerHTML = data;
+    });
+</script>
 
-<p>This page will show reports and analytics later.</p>
+<h1>Reports</h1>
 
-<h3>Example Reports</h3>
-<ul>
-  <li>Total items in inventory</li>
-  <li>Most used items</li>
-  <li>Usage over time</li>
-</ul>
+<p>This page will later highlight items with low stock (less than 3 in quantity).</p>
+
+<table border="1" cellpadding="8" cellspacing="0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Quantity</th>
+      <th>Shelf</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Screws</td>
+      <td>10</td>
+      <td>A1</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Bolts</td>
+      <td>100</td>
+      <td>B2</td>
+    </tr>
+  </tbody>
+</table>
 
 </body>
 </html>

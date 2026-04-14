@@ -5,28 +5,43 @@
 </head>
 <body>
 
-<nav>
-  <a href="index.html">Search</a> |
-  <a href="diagram.html">Diagram</a> |
-  <a href="inventory.html">Inventory</a> |
-  <a href="reports.html">Reports</a>
-</nav>
-<hr>
-<body>
-<h1>Inventory Page</h1>
+<!-- Navbar will load here -->
+<div id="navbar"></div>
 
-<h3>Items on shelves</h3>
-<ul>
-  <li>Screws - 10 pcs</li>
-  <li>Bults - 100 pcs</li>
-</ul>
+<script>
+  fetch("nav.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbar").innerHTML = data;
+    });
+</script>
 
+<h1>Inventory</h1>
 
-<h3>Report missing item</h3>
-<input type="text" placeholder="Item name">
-<input type="number" placeholder="Quantity">
-<button>Submit</button>
-
+<table border="1" cellpadding="8" cellspacing="0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Quantity</th>
+      <th>Shelf</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Screws</td>
+      <td>10</td>
+      <td>A1</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Bolts</td>
+      <td>100</td>
+      <td>B2</td>
+    </tr>
+  </tbody>
+</table>
 
 </body>
 
