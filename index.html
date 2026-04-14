@@ -5,24 +5,20 @@
 </head>
 <body>
 
-<nav>
-  <a href="index.html">Search</a> |
-  <a href="diagram.html">Diagram</a> |
-  <a href="inventory.html">Inventory</a> |
-  <a href="reports.html">Reports</a>
-</nav>
-<hr>
-<body>
+<!-- Navbar will load here -->
+<div id="navbar"></div>
 
-<h1>Smart Inventory - Projektkurs 2</h1>
-<h1>Search Page</h1>
+<script>
+  fetch("nav.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbar").innerHTML = data;
+    });
+</script>
 
-<input type="text" placeholder="Search...">
-<button>Search</button>
-
-<p>Test Pilot for Projektkurs 2</p>
-
-
+<!-- Search -->
+<input type="text" placeholder="Search..." style="width: 300px; padding: 8px;">
+<button style="padding: 8px;">Search</button>
 
 </body>
 </html>
