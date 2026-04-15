@@ -21,8 +21,65 @@
 </h1>
 
 <!-- Search -->
-<input type="text" placeholder="Name or ID-Number" style="width: 300px; padding: 8px;">
-<button style="padding: 8px;">Search</button>
+<input type="text" id="searchInput" placeholder="Name or ID-Number" style="width: 300px; padding: 8px;">
+<button style="padding: 8px;" onclick="searchTable()">Search</button>
+
+<br><br>
+
+<!-- Result table -->
+<table border="1" cellpadding="8" cellspacing="0" id="searchTable">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Quantity</th>
+      <th>Place</th>
+      <th>Stockroom</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const sheetID = "1seAFDHbUnBUQsiluS2PomDIpTpi_0HbbmPWAssUMlh0";
+const url = `https://opensheet.elk.sh/${sheetID}/Sheet1`;
+
+let allData = [];
+
+// Load data once
+fetch(url)
+  .then(res => res.json())
+  .then(data => {
+    allData = data;
+  });
+
+// Search function
+function searchTable() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const tableBody = document.querySelector("#searchTable tbody");
+
+  tableBody.innerHTML = "";
+
+  const filtered = allData.filter(row =>
+    row.ID.toString().includes(input) ||
+    row.Name.toLowerCase().includes(input)
+  );
+
+  filtered.forEach(row => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${row.ID}</td>
+      <td>${row.Name}</td>
+      <td>${row.Quantity}</td>
+      <td>${row.Place}</td>
+      <td>${row.Stockroom}</td>
+    `;
+
+    tableBody.appendChild(tr);
+  });
+}
+</script>
 
 </body>
 </html>
