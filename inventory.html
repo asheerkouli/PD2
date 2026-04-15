@@ -25,13 +25,27 @@
   <option value="Uppsala">Uppsala</option>
 </select>
 
+&nbsp;&nbsp;&nbsp;
+
+<label>Sort by: </label>
+<select id="sortFilter">
+  <option value="none">None</option>
+  <option value="ID">ID</option>
+  <option value="Name">Name</option>
+  <option value="Quantity">Quantity</option>
+  <option value="Place">Place</option>
+  <option value="Stockroom">Stockroom</option>
+</select>
+
+<br><br>
+
 <table border="1" cellpadding="8" cellspacing="0" id="inventoryTable">
   <thead>
     <tr>
       <th>ID</th>
       <th>Name</th>
       <th>Quantity</th>
-      <th>Place</th>
+      <th>Shelf</th>
       <th>Stockroom</th>
     </tr>
   </thead>
@@ -48,7 +62,7 @@ fetch(url)
   .then(res => res.json())
   .then(data => {
     allData = data;
-    renderTable(data);
+    applyFiltersAndSort();
   });
 
 function renderTable(data) {
@@ -70,19 +84,36 @@ function renderTable(data) {
   });
 }
 
-// Filter logic
-document.getElementById("stockroomFilter").addEventListener("change", function () {
-  const selected = this.value;
+// Combine filter + sort
+function applyFiltersAndSort() {
+  let filtered = [...allData];
 
-  if (selected === "All") {
-    renderTable(allData);
-  } else {
-    const filtered = allData.filter(row => row.Stockroom === selected);
-    renderTable(filtered);
+  // Filter
+  const stockroom = document.getElementById("stockroomFilter").value;
+  if (stockroom !== "All") {
+    filtered = filtered.filter(row => row.Stockroom === stockroom);
   }
-});
+
+  // Sort
+  const sortBy = document.getElementById("sortFilter").value;
+  if (sortBy !== "none") {
+    filtered.sort((a, b) => {
+      if (sortBy === "Quantity" || sortBy === "ID") {
+        return Number(a[sortBy]) - Number(b[sortBy]);
+      } else {
+        return a[sortBy].localeCompare(b[sortBy]);
+      }
+    });
+  }
+
+  renderTable(filtered);
+}
+
+// Event listeners
+document.getElementById("stockroomFilter").addEventListener("change", applyFiltersAndSort);
+document.getElementById("sortFilter").addEventListener("change", applyFiltersAndSort);
+
 </script>
 
 </body>
-
 </html>
