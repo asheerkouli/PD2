@@ -18,6 +18,13 @@
 
 <h1>Inventory</h1>
 
+<label>Select stockroom: </label>
+<select id="stockroomFilter">
+  <option value="All">All</option>
+  <option value="Stockholm">Stockholm</option>
+  <option value="Uppsala">Uppsala</option>
+</select>
+
 <table border="1" cellpadding="8" cellspacing="0" id="inventoryTable">
   <thead>
     <tr>
@@ -35,26 +42,45 @@
 const sheetID = "1seAFDHbUnBUQsiluS2PomDIpTpi_0HbbmPWAssUMlh0";
 const url = `https://opensheet.elk.sh/${sheetID}/Sheet1`;
 
+let allData = [];
+
 fetch(url)
   .then(res => res.json())
   .then(data => {
-    const tableBody = document.querySelector("#inventoryTable tbody");
+    allData = data;
+    renderTable(data);
+  });
 
-    data.forEach(row => {
-      const tr = document.createElement("tr");
+function renderTable(data) {
+  const tableBody = document.querySelector("#inventoryTable tbody");
+  tableBody.innerHTML = "";
 
-      tr.innerHTML = `
-        <td>${row.ID}</td>
-        <td>${row.Name}</td>
-        <td>${row.Quantity}</td>
-        <td>${row.Place}</td>
-        <td>${row.Stockroom}</td>
-      `;
+  data.forEach(row => {
+    const tr = document.createElement("tr");
 
-      tableBody.appendChild(tr);
-    });
-  })
-  .catch(err => console.error("Error loading sheet:", err));
+    tr.innerHTML = `
+      <td>${row.ID}</td>
+      <td>${row.Name}</td>
+      <td>${row.Quantity}</td>
+      <td>${row.Place}</td>
+      <td>${row.Stockroom}</td>
+    `;
+
+    tableBody.appendChild(tr);
+  });
+}
+
+// Filter logic
+document.getElementById("stockroomFilter").addEventListener("change", function () {
+  const selected = this.value;
+
+  if (selected === "All") {
+    renderTable(allData);
+  } else {
+    const filtered = allData.filter(row => row.Stockroom === selected);
+    renderTable(filtered);
+  }
+});
 </script>
 
 </body>
