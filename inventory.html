@@ -18,51 +18,36 @@
 
 <h1>Inventory</h1>
 
-<label>Select stockroom: </label>
-<select id="stockroomFilter">
-  <option value="All">All</option>
-  <option value="Stockholm">Stockholm</option>
-  <option value="Uppsala">Uppsala</option>
-</select>
-
-&nbsp;&nbsp;&nbsp;
-
-<label>Sort by: </label>
-<select id="sortFilter">
-  <option value="none">None</option>
-  <option value="ID">ID</option>
-  <option value="Name">Name</option>
-  <option value="Quantity">Quantity</option>
-  <option value="Place">Place</option>
-  <option value="Stockroom">Stockroom</option>
-</select>
-
-<br><br>
-
 <table border="1" cellpadding="8" cellspacing="0" id="inventoryTable">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Quantity</th>
-      <th>Shelf</th>
-      <th>Stockroom</th>
+      <th>Product ID</th>
+      <th>Shelf ID</th>
+      <th>Current Weight</th>
+      <th>Tare Weight</th>
+      <th>Last Updated</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
 <script>
-const sheetID = "1seAFDHbUnBUQsiluS2PomDIpTpi_0HbbmPWAssUMlh0";
-const url = `https://opensheet.elk.sh/${sheetID}/Sheet1`;
+const apiURL = "https://e3egai64zh.execute-api.eu-north-1.amazonaws.com/items";
 
 let allData = [];
 
-fetch(url)
+fetch(apiURL)
   .then(res => res.json())
   .then(data => {
-    allData = data;
-    applyFiltersAndSort();
+    if (typeof data === "string") {
+      allData = JSON.parse(data);
+    } else if (data.body) {
+      allData = JSON.parse(data.body);
+    } else {
+      allData = data;
+    }
+
+    renderTable(allData);
   });
 
 function renderTable(data) {
@@ -73,46 +58,16 @@ function renderTable(data) {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${row.ID}</td>
-      <td>${row.Name}</td>
-      <td>${row.Quantity}</td>
-      <td>${row.Place}</td>
-      <td>${row.Stockroom}</td>
+      <td>${row.product_id}</td>
+      <td>${row.shelf_id}</td>
+      <td>${Math.round(row.current_total_weight)}</td>
+      <td>${row.tare_weight}</td>
+      <td>${row.last_updated}</td>
     `;
 
     tableBody.appendChild(tr);
   });
 }
-
-// Combine filter + sort
-function applyFiltersAndSort() {
-  let filtered = [...allData];
-
-  // Filter
-  const stockroom = document.getElementById("stockroomFilter").value;
-  if (stockroom !== "All") {
-    filtered = filtered.filter(row => row.Stockroom === stockroom);
-  }
-
-  // Sort
-  const sortBy = document.getElementById("sortFilter").value;
-  if (sortBy !== "none") {
-    filtered.sort((a, b) => {
-      if (sortBy === "Quantity" || sortBy === "ID") {
-        return Number(a[sortBy]) - Number(b[sortBy]);
-      } else {
-        return a[sortBy].localeCompare(b[sortBy]);
-      }
-    });
-  }
-
-  renderTable(filtered);
-}
-
-// Event listeners
-document.getElementById("stockroomFilter").addEventListener("change", applyFiltersAndSort);
-document.getElementById("sortFilter").addEventListener("change", applyFiltersAndSort);
-
 </script>
 
 </body>
