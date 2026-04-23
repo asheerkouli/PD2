@@ -18,31 +18,102 @@
 
 <h1>Inventory</h1>
 
-<table border="1" cellpadding="8" cellspacing="0">
+<label>Select stockroom: </label>
+<select id="stockroomFilter">
+  <option value="All">All</option>
+  <option value="Stockholm">Stockholm</option>
+  <option value="Uppsala">Uppsala</option>
+</select>
+
+&nbsp;&nbsp;&nbsp;
+
+<label>Sort by: </label>
+<select id="sortFilter">
+  <option value="none">None</option>
+  <option value="ID">ID</option>
+  <option value="Name">Name</option>
+  <option value="Quantity">Quantity</option>
+  <option value="Place">Place</option>
+  <option value="Stockroom">Stockroom</option>
+</select>
+
+<br><br>
+
+<table border="1" cellpadding="8" cellspacing="0" id="inventoryTable">
   <thead>
     <tr>
       <th>ID</th>
       <th>Name</th>
       <th>Quantity</th>
       <th>Shelf</th>
+      <th>Stockroom</th>
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>Screws</td>
-      <td>10</td>
-      <td>A1</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>Bolts</td>
-      <td>100</td>
-      <td>B2</td>
-    </tr>
-  </tbody>
+  <tbody></tbody>
 </table>
 
-</body>
+<script>
+const sheetID = "1seAFDHbUnBUQsiluS2PomDIpTpi_0HbbmPWAssUMlh0";
+const url = `https://opensheet.elk.sh/${sheetID}/Sheet1`;
 
-</html> 
+let allData = [];
+
+fetch(url)
+  .then(res => res.json())
+  .then(data => {
+    allData = data;
+    applyFiltersAndSort();
+  });
+
+function renderTable(data) {
+  const tableBody = document.querySelector("#inventoryTable tbody");
+  tableBody.innerHTML = "";
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${row.ID}</td>
+      <td>${row.Name}</td>
+      <td>${row.Quantity}</td>
+      <td>${row.Place}</td>
+      <td>${row.Stockroom}</td>
+    `;
+
+    tableBody.appendChild(tr);
+  });
+}
+
+// Combine filter + sort
+function applyFiltersAndSort() {
+  let filtered = [...allData];
+
+  // Filter
+  const stockroom = document.getElementById("stockroomFilter").value;
+  if (stockroom !== "All") {
+    filtered = filtered.filter(row => row.Stockroom === stockroom);
+  }
+
+  // Sort
+  const sortBy = document.getElementById("sortFilter").value;
+  if (sortBy !== "none") {
+    filtered.sort((a, b) => {
+      if (sortBy === "Quantity" || sortBy === "ID") {
+        return Number(a[sortBy]) - Number(b[sortBy]);
+      } else {
+        return a[sortBy].localeCompare(b[sortBy]);
+      }
+    });
+  }
+
+  renderTable(filtered);
+}
+
+// Event listeners
+document.getElementById("stockroomFilter").addEventListener("change", applyFiltersAndSort);
+document.getElementById("sortFilter").addEventListener("change", applyFiltersAndSort);
+
+</script>
+
+</body>
+</html>
