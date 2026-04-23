@@ -41,13 +41,12 @@
 </table>
 
 <script>
-const sheetID = "1seAFDHbUnBUQsiluS2PomDIpTpi_0HbbmPWAssUMlh0";
-const url = `https://opensheet.elk.sh/${sheetID}/Sheet1`;
+const apiURL = "https://e3egai64zh.execute-api.eu-north-1.amazonaws.com/items";
 
 let allData = [];
 
-// Load data once
-fetch(url)
+// Load data once from AWS
+fetch(apiURL)
   .then(res => res.json())
   .then(data => {
     allData = data;
@@ -61,19 +60,19 @@ function searchTable() {
   tableBody.innerHTML = "";
 
   const filtered = allData.filter(row =>
-    row.ID.toString().includes(input) ||
-    row.Name.toLowerCase().includes(input)
+    row.product_id.toString().includes(input) ||
+    row.shelf_id.toString().includes(input)
   );
 
   filtered.forEach(row => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${row.ID}</td>
-      <td>${row.Name}</td>
-      <td>${row.Quantity}</td>
-      <td>${row.Place}</td>
-      <td>${row.Stockroom}</td>
+      <td>${row.product_id}</td>
+      <td>Product ${row.product_id}</td>
+      <td>${Math.round(row.current_total_weight)}</td>
+      <td>${row.shelf_id}</td>
+      <td>Main</td>
     `;
 
     tableBody.appendChild(tr);
