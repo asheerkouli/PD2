@@ -30,11 +30,11 @@
 <table border="1" cellpadding="8" cellspacing="0" id="searchTable">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Quantity</th>
-      <th>Shelf</th>
-      <th>Stockroom</th>
+      <th>Product ID</th>
+      <th>Shelf ID</th>
+      <th>Current Weight</th>
+      <th>Tare Weight</th>
+      <th>Last Updated</th>
     </tr>
   </thead>
   <tbody></tbody>
@@ -69,10 +69,10 @@ function searchTable() {
 
     tr.innerHTML = `
       <td>${row.product_id}</td>
-      <td>Product ${row.product_id}</td>
-      <td>${Math.round(row.current_total_weight)}</td>
       <td>${row.shelf_id}</td>
-      <td>Main</td>
+      <td>${Math.round(row.current_total_weight)}</td>
+      <td>${row.tare_weight}</td>
+      <td>${row.last_updated}</td>
     `;
 
     tableBody.appendChild(tr);
