@@ -53,6 +53,12 @@ fetch(apiURL)
     allData = data;
   });
 
+document.getElementById("searchInput").addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    searchTable();
+  }
+});
+
 // Search function
 function searchTable() {
   const input = document.getElementById("searchInput").value.toLowerCase();
@@ -61,8 +67,7 @@ function searchTable() {
   tableBody.innerHTML = "";
 
   const filtered = allData.filter(row =>
-    row.product_id.toString().includes(input) ||
-    row.shelf_id.toString().includes(input)
+    row.product_id.toString() === input
   );
 
   filtered.forEach(row => {
