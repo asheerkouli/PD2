@@ -30,9 +30,12 @@
 <table border="1" cellpadding="8" cellspacing="0" id="searchTable">
   <thead>
     <tr>
+      <th>RFID UID</th>
       <th>Product ID</th>
       <th>Shelf ID</th>
       <th>Location</th>
+      <th>Display Status</th>
+      <th>Current Quantity</th>
       <th>Current Weight</th>
       <th>Tare Weight</th>
       <th>Last Updated</th>
@@ -50,7 +53,13 @@ let allData = [];
 fetch(apiURL)
   .then(res => res.json())
   .then(data => {
-    allData = data;
+    if (Array.isArray(data)) {
+      allData = data;
+    } else if (data.body) {
+      allData = JSON.parse(data.body);
+    } else {
+      allData = [];
+    }
   });
 
 document.getElementById("searchInput").addEventListener("keypress", function(event) {
@@ -61,22 +70,25 @@ document.getElementById("searchInput").addEventListener("keypress", function(eve
 
 // Search function
 function searchTable() {
-  const input = document.getElementById("searchInput").value.toLowerCase();
+  const input = document.getElementById("searchInput").value.trim();
   const tableBody = document.querySelector("#searchTable tbody");
 
   tableBody.innerHTML = "";
 
   const filtered = allData.filter(row =>
-    row.product_id.toString() === input
+    row.product_id != null && row.product_id.toString() === input
   );
 
   filtered.forEach(row => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${row.product_id}</td>
+      <td>${row.rfid_uid}</td>
+      <td>${row.product_id ?? "-"}</td>
       <td>${row.shelf_id}</td>
       <td>${row.location}</td>
+      <td>${row.display_status}</td>
+      <td>${row.current_quantity}</td>
       <td>${Math.round(row.current_total_weight)}</td>
       <td>${row.tare_weight}</td>
       <td>${row.last_updated}</td>
