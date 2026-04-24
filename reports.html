@@ -23,42 +23,62 @@
 <table border="1" cellpadding="8" cellspacing="0" id="reportsTable">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Quantity</th>
-      <th>Shelf</th>
-      <th>Stockroom</th>
+      <th>RFID UID</th>
+      <th>Product ID</th>
+      <th>Shelf ID</th>
+      <th>Location</th>
+      <th>Display Status</th>
+      <th>Current Quantity</th>
+      <th>Current Weight</th>
+      <th>Tare Weight</th>
+      <th>Last Updated</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
 <script>
-const sheetID = "1seAFDHbUnBUQsiluS2PomDIpTpi_0HbbmPWAssUMlh0";
-const url = `https://opensheet.elk.sh/${sheetID}/Sheet1`;
+const apiURL = "https://e3egai64zh.execute-api.eu-north-1.amazonaws.com/items";
 
-fetch(url)
+fetch(apiURL)
   .then(res => res.json())
   .then(data => {
+    let allData = [];
+
+    if (Array.isArray(data)) {
+      allData = data;
+    } else if (data.body) {
+      allData = JSON.parse(data.body);
+    } else {
+      allData = [];
+    }
+
     const tableBody = document.querySelector("#reportsTable tbody");
 
-    const lowStock = data.filter(row => Number(row.Quantity) < 5);
+    // Filter: only items with quantity < 3
+    const lowStock = allData.filter(row => Number(row.current_quantity) < 3);
+
+    tableBody.innerHTML = "";
 
     lowStock.forEach(row => {
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-        <td>${row.ID}</td>
-        <td>${row.Name}</td>
-        <td style="color: red; font-weight: bold;">${row.Quantity}</td>
-        <td>${row.Place}</td>
-        <td>${row.Stockroom}</td>
+        <td>${row.rfid_uid}</td>
+        <td>${row.product_id ?? "-"}</td>
+        <td>${row.shelf_id}</td>
+        <td>${row.location}</td>
+        <td>${row.display_status}</td>
+        <td style="color: red; font-weight: bold;">${row.current_quantity}</td>
+        <td>${Math.round(row.current_total_weight)}</td>
+        <td>${row.tare_weight}</td>
+        <td>${row.last_updated}</td>
       `;
 
       tableBody.appendChild(tr);
     });
   })
-  .catch(err => console.error("Error loading sheet:", err));
+  .catch(err => console.error("Error loading API:", err));
 </script>
 
 </body>
