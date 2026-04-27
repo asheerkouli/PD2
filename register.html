@@ -1,11 +1,491 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Register</title>
+  <title>Register ITEMS</title>
 </head>
 <body>
 
 <!-- Navbar will load here -->
+<div id="navbar"></div>
+
+<script>
+  fetch("nav.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbar").innerHTML = data;
+    });
+</script>
+
+<h1>Register</h1>
+
+<div id="mainView">
+  <p>Klicka på knappen för att hämta tillgängliga RFID-taggar.</p>
+  <button onclick="fetchAvailableTags()">Hämta</button>
+</div>
+
+<div id="resultView" style="display:none;"></div>
+
+<script>
+const API_BASE = "https://yeop6g88f8.execute-api.eu-north-1.amazonaws.com/"; 
+// Exempel: https://abc123.execute-api.eu-north-1.amazonaws.com
+
+let availableTags = [];
+let selectedTag = null;
+
+function showMainView() {
+  document.getElementById("mainView").style.display = "block";
+  document.getElementById("resultView").style.display = "none";
+  document.getElementById("resultView").innerHTML = "";
+  selectedTag = null;
+}
+
+async function fetchAvailableTags() {
+  const resultView = document.getElementById("resultView");
+  document.getElementById("mainView").style.display = "none";
+  resultView.style.display = "block";
+  resultView.innerHTML = "<p>Hämtar RFID-taggar...</p>";
+
+  try {
+    const res = await fetch(`${API_BASE}/register/available-tags`);
+    const data = await res.json();
+
+    availableTags = data;
+
+    if (!availableTags.length) {
+      resultView.innerHTML = `
+        <p>Inga befintliga IDn hittades</p>
+        <button onclick="showMainView()">Tillbaka</button>
+      `;
+      return;
+    }
+
+    let html = "<p>Följande RFID-taggar hittades: </p>";
+
+    availableTags.forEach(tag => {
+      html += `
+        <div style="margin-bottom: 20px; padding: 10px; border: 1px solid black;">
+          <p>ID# ${tag.rfid_uid} finns</p>
+          <p>Vill du fylla information för denna RFID-taggg?</p>
+          <button onclick="showForm('${tag.rfid_uid}')">Ja</button>
+          <button onclick="showMainView()">Nej</button>
+        </div>
+      `;
+    });
+
+    html += `<button onclick="showMainView()">Tillbaka</button>`;
+    resultView.innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    resultView.innerHTML = `
+      <p>Kunde inte hämta RFID-taggar.</p>
+      <button onclick="showMainView()">Tillbaka</button>
+    `;
+  }
+}
+
+function showForm(rfid_uid) {
+  selectedTag = rfid_uid;
+  const resultView = document.getElementById("resultView");
+
+  resultView.innerHTML = `
+    <h2>Registrera verktyg</h2>
+    <p>RFID-tagg: <strong>${rfid_uid}</strong></p>
+
+    <label for="toolName">Name:</label><br>
+    <input type="text" id="toolName"><br><br>
+
+    <label for="toolWeight">Weight:</label><br>
+    <input type="text" id="toolWeight"><br><br>
+
+    <label for="toolDescription">Description:</label><br>
+    <textarea id="toolDescription" rows="4" cols="40"></textarea><br><br>
+
+    <button onclick="saveTool()">Spara</button>
+    <button onclick="fetchAvailableTags()">Tillbaka</button>
+
+    <p id="saveMessage"></p>
+  `;
+}
+
+async function saveTool() {
+  const name = document.getElementById("toolName").value.trim();
+  const weight = document.getElementById("toolWeight").value.trim();
+  const description = document.getElementById("toolDescription").value.trim();
+  const saveMessage = document.getElementById("saveMessage");
+
+  if (!name || !weight || !description) {
+    saveMessage.textContent = "Fyll i alla fält.";
+    return;
+  }
+
+  const body = {
+  rfid_uid: selectedTag,
+  name: name,
+  weight: weight,
+  description: description
+};
+
+  try {
+    const res = await fetch(`${API_BASE}/register/save-tool`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      throw new Error("Kunde inte spara verktyget");
+    }
+
+    const result = await res.json();
+
+    saveMessage.textContent = "Verktyget sparades.";
+
+    document.getElementById("resultView").innerHTML = `
+      <p>Verktyget med RFID-tagg <strong>${selectedTag}</strong> har sparats.</p>
+      <p>Informationen har skickats till AWS och vidare till Raspberry Pi.</p>
+      <button onclick="showMainView()">Tillbaka till hämta</button>
+    `;
+
+  } catch (err) {
+    console.error(err);
+    saveMessage.textContent = "Något gick fel vid sparning.";
+  }
+}
+</script>
+
+</body>
+</html>
+
+
+<!--<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+</head>
+<body>
+
+Navbar will load here 
+<div id="navbar"></div>
+
+<script>
+  fetch("nav.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbar").innerHTML = data;
+    });
+</script>
+
+<h1>Register</h1>
+
+<div id="mainView">
+  <p>Klicka på knappen för att hämta tillgängliga RFID-taggar.</p>
+  <button onclick="fetchAvailableTags()">Hämta</button>
+</div>
+
+<div id="resultView" style="display:none;"></div>
+
+<script>
+const API_BASE = "https://yeop6g88f8.execute-api.eu-north-1.amazonaws.com/register/available-tags"; 
+// Exempel: https://abc123.execute-api.eu-north-1.amazonaws.com
+
+let availableTags = [];
+let selectedTag = null;
+
+function showMainView() {
+  document.getElementById("mainView").style.display = "block";
+  document.getElementById("resultView").style.display = "none";
+  document.getElementById("resultView").innerHTML = "";
+  selectedTag = null;
+}
+
+async function fetchAvailableTags() {
+  const resultView = document.getElementById("resultView");
+  document.getElementById("mainView").style.display = "none";
+  resultView.style.display = "block";
+  resultView.innerHTML = "<p>Hämtar RFID-taggar...</p>";
+
+  try {
+    const res = await fetch(`${API_BASE}/register/available-tags`);
+    const data = await res.json();
+
+    availableTags = data;
+
+    if (!availableTags.length) {
+      resultView.innerHTML = `
+        <p>Inga befintliga IDn hittades</p>
+        <button onclick="showMainView()">Tillbaka</button>
+      `;
+      return;
+    }
+
+    let html = "<p>Följande RFID-taggar hittades: </p>";
+
+    availableTags.forEach(tag => {
+      html += `
+        <div style="margin-bottom: 20px; padding: 10px; border: 1px solid black;">
+          <p>ID# ${tag.rfid_uid} finns</p>
+          <p>Vill du fylla information för denna RFID-taggg?</p>
+          <button onclick="showForm('${tag.rfid_uid}')">Ja</button>
+          <button onclick="showMainView()">Nej</button>
+        </div>
+      `;
+    });
+
+    html += `<button onclick="showMainView()">Tillbaka</button>`;
+    resultView.innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    resultView.innerHTML = `
+      <p>Kunde inte hämta RFID-taggar.</p>
+      <button onclick="showMainView()">Tillbaka</button>
+    `;
+  }
+}
+
+function showForm(rfid_uid) {
+  selectedTag = rfid_uid;
+  const resultView = document.getElementById("resultView");
+
+  resultView.innerHTML = `
+    <h2>Registrera verktyg</h2>
+    <p>RFID-tagg: <strong>${rfid_uid}</strong></p>
+
+    <label for="toolName">Name:</label><br>
+    <input type="text" id="toolName"><br><br>
+
+    <label for="toolWeight">Weight:</label><br>
+    <input type="text" id="toolWeight"><br><br>
+
+    <label for="toolDescription">Description:</label><br>
+    <textarea id="toolDescription" rows="4" cols="40"></textarea><br><br>
+
+    <button onclick="saveTool()">Spara</button>
+    <button onclick="fetchAvailableTags()">Tillbaka</button>
+
+    <p id="saveMessage"></p>
+  `;
+}
+
+async function saveTool() {
+  const name = document.getElementById("toolName").value.trim();
+  const weight = document.getElementById("toolWeight").value.trim();
+  const description = document.getElementById("toolDescription").value.trim();
+  const saveMessage = document.getElementById("saveMessage");
+
+  if (!name || !weight || !description) {
+    saveMessage.textContent = "Fyll i alla fält.";
+    return;
+  }
+
+  const body = {
+  rfid_uid: selectedTag,
+  name: name,
+  weight: weight,
+  description: description
+};
+
+  try {
+    const res = await fetch(`${API_BASE}/register/save-tool`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      throw new Error("Kunde inte spara verktyget");
+    }
+
+    const result = await res.json();
+
+    saveMessage.textContent = "Verktyget sparades.";
+
+    document.getElementById("resultView").innerHTML = `
+      <p>Verktyget med RFID-tagg <strong>${selectedTag}</strong> har sparats.</p>
+      <p>Informationen har skickats till AWS och vidare till Raspberry Pi.</p>
+      <button onclick="showMainView()">Tillbaka till hämta</button>
+    `;
+
+  } catch (err) {
+    console.error(err);
+    saveMessage.textContent = "Något gick fel vid sparning.";
+  }
+}
+</script>
+
+</body>
+</html>
+
+-->
+<!--<!DOCTYPE html>
+<html>
+<head>
+  <title>Register RFID Tag</title>
+</head>
+<body>
+
+Navbar will load here 
+<div id="navbar"></div>
+
+<script>
+  fetch("nav.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbar").innerHTML = data;
+    });
+</script>
+
+<h1>Register New RFID Tag</h1>
+
+<p>Select a pending RFID tag and enter the tool information.</p>
+
+<label for="pendingTags">Pending RFID tag:</label>
+<select id="pendingTags">
+  <option value="">Loading tags...</option>
+</select>
+
+<br><br>
+
+<label for="toolName">Name:</label>
+<input type="text" id="toolName" placeholder="Enter tool name">
+
+<br><br>
+
+
+<br><br>
+
+<label for="location">Shelf / location:</label>
+<input type="text" id="location" placeholder="Enter location">
+
+<br><br>
+
+<label for="stockroom">Stockroom:</label>
+<select id="stockroom">
+  <option value="Stockholm">Stockholm</option>
+  <option value="Uppsala">Uppsala</option>
+</select>
+
+<br><br>
+
+<label for="quantity">Quantity:</label>
+<input type="number" id="quantity" value="1" min="0">
+
+<br><br>
+
+<button onclick="saveTag()">Save tool</button>
+
+<p id="message"></p>
+
+<script>
+const API_BASE =  "https://e3egai64zh.execute-api.eu-north-1.amazonaws.com/items"; 
+// Exempel: https://abc123.execute-api.eu-north-1.amazonaws.com
+
+async function loadPendingTags() {
+  const select = document.getElementById("pendingTags");
+  const message = document.getElementById("message");
+
+  try {
+    const res = await fetch(`${API_BASE}/items/pending`);
+    const tags = await res.json();
+
+    select.innerHTML = "";
+
+    if (!tags.length) {
+      select.innerHTML = '<option value="">No pending tags found</option>';
+      return;
+    }
+
+    tags.forEach(tag => {
+      const option = document.createElement("option");
+      option.value = tag.rfidTag;
+      option.textContent = `${tag.rfidTag} - ${tag.piId || "Unknown Pi"}`;
+      select.appendChild(option);
+    });
+
+    message.textContent = "";
+  } catch (err) {
+    console.error(err);
+    select.innerHTML = '<option value="">Could not load tags</option>';
+    message.textContent = "Error loading pending RFID tags.";
+  }
+}
+
+async function saveTag() {
+  const rfidTag = document.getElementById("pendingTags").value;
+  const toolName = document.getElementById("toolName").value.trim();
+  const category = document.getElementById("category").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const stockroom = document.getElementById("stockroom").value;
+  const quantity = Number(document.getElementById("quantity").value);
+  const message = document.getElementById("message");
+
+  if (!rfidTag) {
+    message.textContent = "Please select a pending RFID tag.";
+    return;
+  }
+
+  if (!toolName || !category || !location) {
+    message.textContent = "Please fill in all fields.";
+    return;
+  }
+
+  const body = {
+    toolName: toolName,
+    category: category,
+    location: location,
+    stockroom: stockroom,
+    quantity: quantity
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/items/${rfidTag}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to save tool");
+    }
+
+    message.textContent = `Tool saved for RFID tag ${rfidTag}.`;
+
+    document.getElementById("toolName").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("location").value = "";
+    document.getElementById("stockroom").value = "Stockholm";
+    document.getElementById("quantity").value = 1;
+
+    loadPendingTags();
+  } catch (err) {
+    console.error(err);
+    message.textContent = "Error saving tool data.";
+  }
+}
+
+loadPendingTags();
+</script>
+
+</body>
+</html> -->
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+</head>
+<body>
+
+Navbar will load here 
 <div id="navbar"></div>
 
 <script>
