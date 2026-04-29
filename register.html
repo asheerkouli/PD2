@@ -59,10 +59,12 @@ async function fetchAvailableTags() {
 
     tags.forEach(tag => {
       const id = tag.rfid_uid;
+      const shelf = tag.shelf_id;
 
       html += `
         <div style="margin-bottom: 20px; padding: 10px; border: 1px solid black;">
           <p>ID# ${id} finns</p>
+          <p>Hylla: ${shelf}</p>
           <p>Vill du fylla information för denna RFID-tagg?</p>
           <button onclick="showRegisterOptions('${id}')">Ja</button>
           <button onclick="showMainView()">Nej</button>
