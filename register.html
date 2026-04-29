@@ -231,7 +231,9 @@ async function linkExistingProduct() {
     });
 
     if (!res.ok) {
-      throw new Error("Kunde inte länka RFID-taggen");
+    const text = await res.text();
+    alert("SERVER ERROR: " + text);
+    throw new Error(text);
     }
 
     document.getElementById("resultView").innerHTML = `
