@@ -46,6 +46,14 @@ async function fetchAvailableTags() {
   try {
     const res = await fetch(`${API_BASE}/register/available-tags`);
     const tags = await res.json();
+    if (!Array.isArray(tags)) {
+      console.log("API svarade inte med lista:", tags);
+      resultView.innerHTML = `
+        <p>Kunde inte hämta RFID-taggar.</p>
+        <button onclick="showMainView()">Tillbaka</button>
+      `;
+      return;
+  }
 
     if (!tags || tags.length === 0) {
       resultView.innerHTML = `
