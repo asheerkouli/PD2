@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Inventory</title>
+  <title>Smart Scale</title>
 </head>
 <body>
 
@@ -16,19 +16,18 @@
     });
 </script>
 
-<h1>Inventory</h1>
+<h1>Smart Scale</h1>
 
 <table border="1" cellpadding="8" cellspacing="0" id="inventoryTable">
   <thead>
     <tr>
-      <th>RFID UID</th>
       <th>Product ID</th>
+      <th>Name</th>
       <th>Shelf ID</th>
       <th>Location</th>
       <th>Display Status</th>
       <th>Current Quantity</th>
-      <th>Current Weight</th>
-      <th>Tare Weight</th>
+      <th>Current Weight (kg)</th>
       <th>Last Updated</th>
     </tr>
   </thead>
@@ -61,16 +60,18 @@ function renderTable(data) {
   data.forEach(row => {
     const tr = document.createElement("tr");
 
+    const formattedWeight = Number(row.current_total_weight).toFixed(2);
+    const formattedDate = row.last_updated.split(".")[0];
+
     tr.innerHTML = `
-      <td>${row.rfid_uid}</td>
       <td>${row.product_id ?? "-"}</td>
+      <td>${row.name ?? "-"}</td>
       <td>${row.shelf_id}</td>
       <td>${row.location}</td>
       <td>${row.display_status}</td>
       <td>${row.current_quantity}</td>
-      <td>${Math.round(row.current_total_weight)}</td>
-      <td>${row.tare_weight}</td>
-      <td>${row.last_updated}</td>
+      <td>${formattedWeight}</td>
+      <td>${formattedDate}</td>
     `;
 
     tableBody.appendChild(tr);
